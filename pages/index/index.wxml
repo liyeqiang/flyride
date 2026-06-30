@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="hero">
+    <view class="hero-badge">低空飞行体验</view>
+    <text class="hero-title">飞行摩托</text>
+    <text class="hero-subtitle">感受低空飞行的自由与刺激</text>
+  </view>
+
+  <view class="card">
+    <view class="card-title">费用说明</view>
+    <view class="price-row">
+      <text class="price-label">意外险（中国人寿）</text>
+      <text class="price-value">¥{{insuranceFee}}</text>
+    </view>
+    <view class="price-row">
+      <text class="price-label">体验费</text>
+      <text class="price-value">¥{{experienceFee}}</text>
+    </view>
+    <view class="card-desc" style="margin-top: 16rpx;">
+      预约流程：填写信息 → 购买保险 → 支付体验费 → 到场体验
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">体验须知</view>
+    <view class="card-desc">
+      1. 需年满18周岁，体重不超过120kg\n
+      2. 请携带有效身份证件到场核销\n
+      3. 保险购买完成后请在1小时内支付体验费
+    </view>
+  </view>
+
+  <button class="btn-primary" bindtap="goBooking">立即预约</button>
+</view>
