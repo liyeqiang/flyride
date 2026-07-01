@@ -49,7 +49,8 @@ Page({
 
     this.setData({ order, insuranceDone, isPaid, expired });
 
-    if (insuranceDone && !isPaid && order.expireAt) {
+    // 体验费支付不依赖保险购买是否完成，倒计时按订单本身的有效期展示
+    if (!isPaid && !expired && order.expireAt) {
       this._startExpireCountdown(new Date(order.expireAt));
     }
     if (isPaid || expired) this._stopPoll();
@@ -81,10 +82,6 @@ Page({
     };
     tick();
     this._expireTimer = setInterval(tick, 1000);
-  },
-
-  goBackInsurance() {
-    wx.navigateBack();
   },
 
   restartBooking() {
