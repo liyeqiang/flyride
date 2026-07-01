@@ -1,57 +1,6 @@
 <!-- pages/insurance/index.wxml -->
 
-<!-- ① 引导页：用户尚未点击跳转 -->
-<view class="page" wx:if="{{!showWebview && !waiting}}">
-  <view class="step-bar">
-    <view class="step done"><view class="step-dot">✓</view><text class="step-label">填信息</text></view>
-    <view class="step-line done"></view>
-    <view class="step active"><view class="step-dot">2</view><text class="step-label">买保险</text></view>
-    <view class="step-line"></view>
-    <view class="step"><view class="step-dot">3</view><text class="step-label">付体验费</text></view>
-  </view>
-
-  <view class="ins-hero">
-    <text class="ins-icon-big">🛡</text>
-    <text class="ins-title">购买飞行意外险</text>
-    <text class="ins-sub">中国人寿承保 · 保额 10 万元</text>
-  </view>
-
-  <view class="section card ins-detail-card">
-    <view class="ins-row">
-      <text class="ins-key">产品名称</text>
-      <text class="ins-val">飞行器驾乘人员意外险</text>
-    </view>
-    <view class="ins-row">
-      <text class="ins-key">承保机构</text>
-      <text class="ins-val">中国人寿电商平台</text>
-    </view>
-    <view class="ins-row">
-      <text class="ins-key">保险费用</text>
-      <text class="ins-val highlight">¥20.00</text>
-    </view>
-    <view class="ins-row">
-      <text class="ins-key">生效时间</text>
-      <text class="ins-val">付款后即时生效</text>
-    </view>
-    <view class="ins-row" style="border:none;margin:0;padding:0">
-      <text class="ins-key">支付方式</text>
-      <text class="ins-val">保险公司独立收款</text>
-    </view>
-  </view>
-
-  <view class="section ins-notice">
-    <text>💡 点击下方按钮将在微信浏览器中打开保险页面，完成后返回本页即可继续</text>
-  </view>
-
-  <button class="btn btn-primary" style="margin-top:32rpx" bindtap="openInsurance">
-    前往购买保险（¥20）
-  </button>
-  <button class="btn btn-ghost" bindtap="skipInsurance">
-    保险已在其他设备购买，跳过此步
-  </button>
-</view>
-
-<!-- ② 等待页：用户已跳出去购险，等待返回 -->
+<!-- ② 外部浏览器降级等待页：仅当内嵌加载失败时才会出现 -->
 <view class="page waiting-page" wx:if="{{waiting && !showWebview}}">
   <view class="step-bar">
     <view class="step done"><view class="step-dot">✓</view><text class="step-label">填信息</text></view>
@@ -87,9 +36,11 @@
   </button>
 </view>
 
-<!-- ③ web-view 内嵌（业务域名白名单配置后自动启用，目前备用） -->
-<web-view wx:if="{{showWebview}}"
-          src="{{insuranceUrl}}"
-          bindmessage="onWebviewMsg"
-          bindload="onWebviewLoad"
-          binderror="onWebviewError"/>
+<!-- ③ web-view 内嵌保险H5：默认打开方式，直接在小程序内展示 -->
+<view class="webview-page" wx:if="{{showWebview}}">
+  <web-view src="{{insuranceUrl}}"
+            bindmessage="onWebviewMsg"
+            bindload="onWebviewLoad"
+            binderror="onWebviewError"/>
+  <cover-view class="webview-fab" bindtap="showWebviewActions">···</cover-view>
+</view>

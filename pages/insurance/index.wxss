@@ -1,12 +1,4 @@
 /* pages/insurance/index.wxss */
-.ins-hero {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 60rpx 32rpx 40rpx;
-}
-.ins-icon-big { font-size: 100rpx; }
-.ins-title { font-size: 40rpx; font-weight: 700; color: #1a1a2e; margin-top: 20rpx; }
-.ins-sub { font-size: 26rpx; color: #78909c; margin-top: 10rpx; }
-
 .ins-detail-card { padding: 0; overflow: hidden; }
 .ins-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -16,12 +8,6 @@
 .ins-key { font-size: 28rpx; color: #78909c; }
 .ins-val { font-size: 28rpx; color: #1a1a2e; font-weight: 500; }
 .ins-val.highlight { color: #e53935; font-size: 34rpx; font-weight: 700; }
-
-.ins-notice {
-  background: #fff8e1; border-radius: 12rpx;
-  padding: 24rpx 28rpx; margin-top: 24rpx;
-  font-size: 26rpx; color: #795548; line-height: 1.7;
-}
 
 /* 等待状态 */
 .waiting-page { background: #f5f7ff; }
@@ -47,4 +33,15 @@
   font-size: 26rpx; color: #78909c;
   text-align: center; line-height: 1.7;
   margin-bottom: 8rpx;
+}
+
+/* web-view 内嵌保险H5：仅用一个悬浮小按钮承载操作入口，避免遮挡/拦截 H5 页面自身的弹窗与按钮 */
+.webview-page { position: relative; width: 100%; height: 100vh; }
+.webview-fab {
+  position: fixed; right: 24rpx; bottom: calc(48rpx + env(safe-area-inset-bottom));
+  width: 96rpx; height: 96rpx; line-height: 96rpx; text-align: center;
+  border-radius: 50%;
+  background: rgba(26, 115, 232, 0.92); color: #fff;
+  font-size: 44rpx; font-weight: 700;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.25);
 }
