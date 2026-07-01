@@ -9,7 +9,7 @@ exports.main = async (event) => {
   if (!orderId) return { error: '缺少 orderId' };
 
   try {
-    const { data: order } = await db.collection('fly_orders').doc(orderId).get();
+    const { data: order } = await db.collection('fly_orders').doc(orderId).field({ riderIdNo: false }).get();
     if (order.openid !== wxCtx.OPENID) {
       return { error: '无权查看此订单' };
     }

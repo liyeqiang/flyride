@@ -1,4 +1,3 @@
-// miniprogram/app.js
 App({
   globalData: {
     cloudEnvId: 'cloud1-d4g0h3ems1ed00de6',

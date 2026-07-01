@@ -45,17 +45,24 @@
     </view>
   </view>
 
-  <block wx:if="{{insuranceDone && !isPaid}}">
+  <view class="card" wx:if="{{expired}}">
+    <view class="card-title">订单已超时</view>
+    <view class="card-desc">很抱歉，本次预约已超过有效时间，请重新预约</view>
+  </view>
+
+  <block wx:if="{{expired}}">
+    <button class="btn-primary" bindtap="restartBooking">重新预约</button>
+  </block>
+  <block wx:elif="{{insuranceDone && !isPaid}}">
     <view class="card">
       <view class="card-title">体验费</view>
       <view class="fee-display">¥198.00</view>
     </view>
-    <button class="btn-primary" bindtap="payExperience" disabled="{{paying || expireText === '已超时'}}">
+    <button class="btn-primary" bindtap="payExperience" disabled="{{paying}}">
       {{paying ? '支付中...' : '支付体验费 ¥198'}}
     </button>
   </block>
-
-  <block wx:if="{{!insuranceDone}}">
+  <block wx:elif="{{!insuranceDone}}">
     <button class="btn-secondary" bindtap="goBackInsurance">返回购买保险</button>
   </block>
 </view>

@@ -1,4 +1,5 @@
 const app = getApp();
+const { isValidPhone, isValidIdNo, calcAgeFromIdNo } = require('../../utils/validate.js');
 
 Page({
   data: {
@@ -22,13 +23,25 @@ Page({
       wx.showToast({ title: '请输入姓名', icon: 'none' });
       return;
     }
-    if (!/^1[3-9]\d{9}$/.test(riderPhone)) {
+    if (!isValidPhone(riderPhone)) {
       wx.showToast({ title: '手机号格式不正确', icon: 'none' });
       return;
     }
-    if (!/^\d{17}[\dX]$/i.test(riderIdNo)) {
+    if (!isValidIdNo(riderIdNo)) {
       wx.showToast({ title: '身份证号格式不正确', icon: 'none' });
       return;
+    }
+    const age = calcAgeFromIdNo(riderIdNo);
+    if (age !== null && age < 18) {
+      wx.showToast({ title: '需年满18周岁方可预约', icon: 'none' });
+      return;
+    }
+    if (riderWeight) {
+      const w = parseFloat(riderWeight);
+      if (Number.isNaN(w) || w <= 0 || w > 120) {
+        wx.showToast({ title: '体重需在120kg以内', icon: 'none' });
+        return;
+      }
     }
 
     this.setData({ submitting: true });

@@ -3,27 +3,32 @@
 ## 目录结构
 
 ```
-flyride/
+flyride/                             ← 项目根目录即小程序根目录（project.config.json 未设置 miniprogramRoot）
 ├── project.config.json              微信开发者工具项目配置
+├── app.js                           云开发初始化 + callCloud封装
+├── app.json                         页面路由
+├── app.wxss                         全局样式
 │
 ├── cloudfunctions/                  ← 所有云函数（后端）
-│   ├── createOrder/                 创建订单，生成保险H5链接
+│   ├── createOrder/                 创建订单，生成保险H5链接（含年龄/体重校验，身份证加密存储）
 │   ├── markInsurancePending/        记录已跳转保险
-│   ├── markInsuranceDone/           标记保险完成（前端+Webhook双触发）
+│   ├── markInsuranceDone/           标记保险完成（前端直调 + Webhook 双触发，均带权限校验）
 │   ├── createPayment/               云调用发起微信支付（无需证书）
 │   ├── payNotify/                   微信支付成功回调
 │   ├── getOrder/                    查询订单状态（轮询用）
-│   └── verifyOrder/                 工作人员核销
+│   ├── listMyOrders/                查询当前用户的历史订单列表
+│   └── verifyOrder/                 工作人员核销（需口令校验，支持查询/核销两种操作）
 │
-└── miniprogram/                     ← 小程序前端
-    ├── app.js                       云开发初始化 + callCloud封装
-    ├── app.json                     页面路由
-    ├── app.wxss                     全局样式
-    └── pages/
-        ├── index/                   首页（费用展示）
-        ├── form/                    填写信息页
-        ├── insurance/               保险跳转页（流程枢纽）
-        └── payment/                 体验费支付页
+├── utils/
+│   └── validate.js                  前端共用的手机号/身份证/年龄校验函数
+│
+└── pages/
+    ├── index/                       首页（费用展示 + 我的订单/工作人员入口）
+    ├── form/                        填写信息页
+    ├── insurance/                   保险跳转页（流程枢纽）
+    ├── payment/                     体验费支付页
+    ├── orders/                      我的订单列表页
+    └── verify/                      工作人员核销页
 ```
 
 ## 云开发与自建服务器的对比
@@ -45,14 +50,14 @@ flyride/
 - [ ] 开通云开发环境（开发者工具 → 云开发 → 开通）
 - [ ] 商户号绑定小程序（微信支付商户平台 → 产品中心 → JSAPI支付）
 
-### 2. 修改配置（两处必改）
+### 2. 修改配置（必改项）
 
 **project.config.json**
 ```json
 "appid": "你的小程序AppID"
 ```
 
-**miniprogram/app.js**
+**app.js**
 ```js
 cloudEnvId: '你的云开发环境ID'  // 在云开发控制台→环境→环境ID
 ```
@@ -63,6 +68,16 @@ const CLOUD_ENV_ID = '你的云开发环境ID';
 // ...
 subMchId: '你的微信支付商户号',
 ```
+
+**安全相关环境变量（务必配置，否则使用极不安全的默认值）**
+
+云开发控制台 → 云函数 → 对应函数 → 版本与配置 → 环境变量：
+
+| 云函数 | 环境变量 | 说明 |
+|---|---|---|
+| createOrder、verifyOrder | `ID_ENC_SECRET` | 身份证加密密钥，**两处必须设置为完全相同的值**，否则 verifyOrder 无法正确脱敏展示身份证号 |
+| verifyOrder | `STAFF_PASSCODE` | 工作人员核销口令，用于 pages/verify 核销页面登录 |
+| markInsuranceDone | `INSURANCE_WEBHOOK_TOKEN` | Webhook 密钥，防止他人伪造保险完成回调 |
 
 ### 3. 云开发控制台操作
 
@@ -81,7 +96,8 @@ fly_orders
 #### 3.3 开启 markInsuranceDone 的 HTTP 触发
 云开发控制台 → 云函数 → markInsuranceDone → 触发方式 → HTTP触发：
 - 开启后复制触发 URL
-- 将此 URL 提供给保险公司配置 Webhook 回调
+- 在 URL 后拼接 `?token=你设置的INSURANCE_WEBHOOK_TOKEN`
+- 将拼接后的 URL 提供给保险公司配置 Webhook 回调（不带 token 的请求会被拒绝）
 
 ### 4. 部署云函数
 
@@ -95,6 +111,7 @@ fly_orders
 - createPayment
 - payNotify
 - getOrder
+- listMyOrders
 - verifyOrder
 
 ### 5. 配置业务域名（web-view 使用）
@@ -114,6 +131,9 @@ ins_done       保险完成（前端回调 or 保险公司Webhook）
 exp_paid       体验费支付成功（微信回调触发）
   ↓
 completed      工作人员核销，体验完成
+
+expired         创建后30分钟未买保险，或保险完成后60分钟未支付体验费，可在首页重新预约
+payment_error   微信支付回调金额与应收不符，需人工核实
 ```
 
 ## 云数据库字段说明
@@ -124,7 +144,7 @@ completed      工作人员核销，体验完成
   openid: 'o9Kxs...',           // 游客 openid（自动注入）
   riderName: '张三',
   riderPhone: '13812345678',
-  riderIdNo: '110101...',        // 建议生产环境加密
+  riderIdNo: 'base64iv:base64cipher',  // AES-256-CBC 加密存储，见 createOrder/verifyOrder 的 ID_ENC_SECRET
   riderWeight: '75',
   status: 'exp_paid',
   insuranceUrl: 'https://exx.95505.cn/...',
@@ -151,3 +171,9 @@ A: 需在小程序后台将 `exx.95505.cn` 添加为业务域名白名单。
 
 **Q: 保险完成后没有自动跳回？**  
 A: 目前依赖轮询（3秒一次）。若要更快响应，需联系中国人寿95505平台配置 Webhook 回调到 markInsuranceDone 的 HTTP 触发地址。
+
+**Q: 工作人员核销页面（pages/verify）提示"口令错误"？**  
+A: 检查 verifyOrder 云函数的环境变量 `STAFF_PASSCODE` 是否已配置，并与工作人员实际输入的口令一致。
+
+**Q: verifyOrder 查询时身份证号显示不对/报错？**  
+A: 检查 createOrder 和 verifyOrder 两个云函数的环境变量 `ID_ENC_SECRET` 是否设置为完全相同的值。

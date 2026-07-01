@@ -1,4 +1,3 @@
-// miniprogram/pages/insurance/index.js
 const app = getApp();
 
 const POLL_INTERVAL = 3000;

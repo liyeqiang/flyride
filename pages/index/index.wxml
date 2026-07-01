@@ -30,4 +30,7 @@
   </view>
 
   <button class="btn-primary" bindtap="goBooking">立即预约</button>
+  <button class="btn-secondary" bindtap="goMyOrders">查看我的订单</button>
+
+  <view class="staff-entry" bindtap="goStaffVerify">工作人员入口</view>
 </view>

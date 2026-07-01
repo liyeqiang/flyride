@@ -6,6 +6,7 @@ Page({
     order: {},
     insuranceDone: false,
     isPaid: false,
+    expired: false,
     paying: false,
     expireText: '',
   },
@@ -44,13 +45,14 @@ Page({
   _applyOrder(order) {
     const insuranceDone = ['ins_done', 'exp_paid', 'completed'].includes(order.status);
     const isPaid = ['exp_paid', 'completed'].includes(order.status);
+    const expired = order.status === 'expired';
 
-    this.setData({ order, insuranceDone, isPaid });
+    this.setData({ order, insuranceDone, isPaid, expired });
 
     if (insuranceDone && !isPaid && order.expireAt) {
       this._startExpireCountdown(new Date(order.expireAt));
     }
-    if (isPaid) this._stopPoll();
+    if (isPaid || expired) this._stopPoll();
   },
 
   _startPoll() {
@@ -69,7 +71,7 @@ Page({
     const tick = () => {
       const ms = expireAt - Date.now();
       if (ms <= 0) {
-        this.setData({ expireText: '已超时' });
+        this.setData({ expireText: '已超时', expired: true });
         clearInterval(this._expireTimer);
         return;
       }
@@ -83,6 +85,10 @@ Page({
 
   goBackInsurance() {
     wx.navigateBack();
+  },
+
+  restartBooking() {
+    wx.reLaunch({ url: '/pages/index/index' });
   },
 
   async payExperience() {

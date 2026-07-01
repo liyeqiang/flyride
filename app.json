@@ -3,7 +3,9 @@
     "pages/index/index",
     "pages/form/index",
     "pages/insurance/index",
-    "pages/payment/index"
+    "pages/payment/index",
+    "pages/orders/index",
+    "pages/verify/index"
   ],
   "window": {
     "navigationBarTitleText": "飞行摩托体验",

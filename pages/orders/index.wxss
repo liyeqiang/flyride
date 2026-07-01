@@ -1,0 +1,17 @@
+.order-card {
+  padding: 24rpx 32rpx;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rpx 0;
+  font-size: 26rpx;
+}
+
+.order-id-small {
+  font-size: 22rpx;
+  color: #999;
+  word-break: break-all;
+}
